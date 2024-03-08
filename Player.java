@@ -13,7 +13,7 @@ public class Player {
         health = playerHealthInit ;
     }
     public Boolean isDead(){
-        return health==0 ;
+        return health== -1 ;
     }
 
     public int getHealth() {
@@ -38,6 +38,10 @@ public class Player {
     }
 
     public void setGuess(char g){ guess = g ; }
+
+    public void setHealth(int health){
+        this.health = health ;
+    }
 
     public void decreaseHealth() throws Exception {
         if( health == 0 ){

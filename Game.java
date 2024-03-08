@@ -6,11 +6,14 @@ import java.util.ArrayList;
 
 enum Status{
     NOT_STARTED,
-    STARTED,
+    CONTINUE,
     ENDED
 }
 
 public class Game {
+    public static void main(String[] args) {
+        // TODO : Implement main code logic here.
+    }
     private String currentWord ;
     private String displayedWord ;
     private String inputFileName ;
@@ -179,6 +182,92 @@ public class Game {
         System.out.println("     / \\  ");
     }
 
-    public void playGame(){}
-}
+    public void playGame(){
+        pickRandomWordFromWordList() ;
 
+        int wordSize = currentWord.length() ;
+
+        String buffer = ""  ;
+        // Make displayed word same length with currentWord but all chars replaced by '_'
+
+        for(int i = 0 ; i<wordSize ; i++){
+            buffer =  buffer + "_" ;
+        }
+
+
+        while( !isEnded() ){
+            printPlayerStatus();
+            draw();
+            takeGuessFromPlayer();
+
+            boolean charFound = false ;
+
+            String bufferDisplayed = "" ;
+
+            // Update displayed word according to player's guess.
+            for(int i = 0 ; i< currentWord.length() ; i++ ){
+                if( currentWord.charAt(i)  == player.getGuess() ){
+                    charFound = true ;
+                    wordSize -- ;
+                    bufferDisplayed += player.getGuess() ;
+                }
+                else{
+                    bufferDisplayed += displayedWord.charAt(i) ;
+                }
+            }
+
+            // change displayed word
+            setDisplayedWord(bufferDisplayed);
+
+            if(!charFound){
+                player.setHealth( player.getHealth()-1 );
+            }
+
+            // Determine WIN LOSE or CONTINUE
+
+            // CASE: LOSE
+
+            if( player.isDead() ){
+                setGameStatus(Status.ENDED);
+
+                System.out.println("You have lost the game :/") ;
+                System.out.println("As total you have guessed "+ player.getNumberOfKnownWords() +" words correctly");
+                System.out.println("The word to be guessed was : " + currentWord) ;
+
+
+                // TODO: implement wait logic here
+                continue;
+            }
+
+            if( wordSize == 0 ){
+                printPlayerStatus() ;
+                draw() ;
+                player.setNumberOfKnownWords( player.getNumberOfKnownWords()+1 );
+
+                System.out.println("You guessed the word correctly ");
+                // Case : No words left to be guessed
+                if(!pickRandomWordFromWordList()){
+                    System.out.println("You have guessed all the words correctly");
+                    System.out.println("As total you have guessed " + player.getNumberOfKnownWords() + " words correctly");
+                    System.out.println("---------------Game Ended---------------");
+                    System.out.println("****************************************");
+
+                    // TODO: implement wait logic here
+                    // std::this_thread::sleep_for(std::chrono::seconds(3));
+
+                    setGameStatus(Status.ENDED) ;
+                    continue ;
+                }
+                // Case : There are words to be guessed
+                else{
+                    System.out.println("Next word is loading...");
+                    setDisplayedWord("");
+                    // Maybe we should implement other game logic here other than calling same function recursively.
+                    playGame() ;
+                    return ;
+                }
+            }
+            setGameStatus(Status.CONTINUE);
+        }
+    }
+}
