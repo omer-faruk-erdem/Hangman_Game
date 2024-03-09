@@ -6,6 +6,7 @@ import java.io.InputStreamReader;
 import java.util.NoSuchElementException;
 import java.util.Scanner;
 import java.util.ArrayList;
+import java.lang.Thread ;
 
 enum Status{
     NOT_STARTED,
@@ -202,8 +203,17 @@ public class Game {
             }
 
             boolean charFound = false ;
-
+            boolean alreadyGuessed = false ;
             String bufferDisplayed = "" ;
+
+
+            // check if current guess is in the displayed words
+            for(int i = 0 ; i< currentWord.length() ; i++ ){
+                if(player.getGuess() == displayedWord.charAt(i) ){
+                    alreadyGuessed = true ;
+                    break;
+                }
+            }
 
             // Update displayed word according to player's guess.
             for(int i = 0 ; i< currentWord.length() ; i++ ){
@@ -220,7 +230,7 @@ public class Game {
             // change displayed word
             setDisplayedWord(bufferDisplayed);
 
-            if(!charFound){
+            if(!charFound || alreadyGuessed){
                 player.setHealth( player.getHealth()-1 );
             }
 
@@ -235,8 +245,12 @@ public class Game {
                 System.out.println("As total you have guessed "+ player.getNumberOfKnownWords() +" words correctly");
                 System.out.println("The word to be guessed was : " + currentWord) ;
 
-
-                // TODO: implement wait logic here
+                try {
+                    Thread.sleep( 3* 1000);
+                } catch (InterruptedException ie) {
+                    System.out.println("Sleep interrupted");
+                    ie.printStackTrace();
+                }
                 continue;
             }
 
@@ -253,17 +267,28 @@ public class Game {
                     System.out.println("---------------Game Ended---------------");
                     System.out.println("****************************************");
 
-                    // TODO: implement wait logic here
-                    // std::this_thread::sleep_for(std::chrono::seconds(3));
-
+                    try {
+                        Thread.sleep( 3* 1000);
+                    } catch (InterruptedException ie) {
+                        Thread.currentThread().interrupt();
+                    }
                     setGameStatus(Status.ENDED) ;
                     continue ;
                 }
                 // Case : There are words to be guessed
                 else{
+                    printPlayerStatus();
+                    draw() ;
+                    player.setGuess('*');
+
                     System.out.println("Next word is loading...");
                     setDisplayedWord("");
                     // Maybe we should implement other game logic here other than calling same function recursively.
+                    try {
+                        Thread.sleep( 3* 1000);
+                    } catch (InterruptedException ie) {
+                        Thread.currentThread().interrupt();
+                    }
                     playGame() ;
                     return ;
                 }
