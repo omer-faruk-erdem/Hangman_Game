@@ -1,0 +1,9 @@
+library
+book
+computer
+mouse
+bottle
+water
+phone
+keyboard
+coffee

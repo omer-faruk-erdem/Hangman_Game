@@ -1,6 +1,9 @@
 import java.awt.desktop.SystemSleepEvent;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.InputStreamReader;
+import java.util.NoSuchElementException;
 import java.util.Scanner;
 import java.util.ArrayList;
 
@@ -11,19 +14,21 @@ enum Status{
 }
 
 public class Game {
-    public static void main(String[] args) {
-        // TODO : Implement main code logic here.
-    }
     private String currentWord ;
     private String displayedWord ;
     private String inputFileName ;
     ArrayList<String> words ;
     Status gameStatus ;
+    Scanner scanner ;
+
 
     Player player ;
 
     public Game(){
         gameStatus = Status.NOT_STARTED ;
+        words = new ArrayList<>() ;
+        inputFileName = "words.txt" ;
+        scanner = new Scanner(System.in) ;
         getWords();
     }
 
@@ -67,17 +72,13 @@ public class Game {
             File file = new File(filePath);
 
             // Create a Scanner object to read from the file
-            Scanner scanner = new Scanner(file);
+            Scanner sc = new Scanner(file);
 
             // Read and process each line of the file
-            while (scanner.hasNextLine()) {
-                String line = scanner.nextLine();
+            while (sc.hasNextLine()) {
+                String line = sc.nextLine();
                 words.add(line) ;
-                System.out.println(line);
             }
-
-            // Close the scanner
-            scanner.close();
         } catch (FileNotFoundException e) {
             // Handle file not found exception
             System.out.println( e.getMessage() );
@@ -103,21 +104,12 @@ public class Game {
     public void takeGuessFromPlayer(){
         System.out.println("Enter your guess ... ");
 
-        Scanner scanner = new Scanner(System.in) ;
-        String input = scanner.nextLine();
+        String guess = scanner.nextLine() ;
 
-        // Extract the first character from the input string
-        char gs = '-' ;
-
-        if (!input.isEmpty()) {
-            gs = input.charAt(0);
-            System.out.println("You entered: " + gs);
-        } else {
-            System.out.println("You didn't enter anything.");
-        }
+        char gs = guess.charAt(0) ;
 
         player.setGuess(gs);
-        scanner.close();
+
     }
 
     public void printPlayerStatus(){
@@ -125,9 +117,9 @@ public class Game {
         System.out.print("\033[H\033[2J");
         System.out.flush();
 
-        System.out.println("Your word " + currentWord);
+        System.out.println("Your word " + displayedWord);
         System.out.println("Your health " + player.getHealth() );
-        System.out.println("Your current score " + player.getScore() );
+        System.out.println("Your current score " + player.getNumberOfKnownWords() );
     }
 
     public boolean isEnded(){
@@ -194,11 +186,20 @@ public class Game {
             buffer =  buffer + "_" ;
         }
 
+        displayedWord = buffer ;
 
         while( !isEnded() ){
             printPlayerStatus();
             draw();
-            takeGuessFromPlayer();
+            while(true){
+                try{
+                    takeGuessFromPlayer();
+                    break;
+                }
+                catch (Exception e){
+                    System.out.println("You didn't enter any guess!!ç");
+                }
+            }
 
             boolean charFound = false ;
 
@@ -230,7 +231,7 @@ public class Game {
             if( player.isDead() ){
                 setGameStatus(Status.ENDED);
 
-                System.out.println("You have lost the game :/") ;
+                System.out.println("You have lost the game " + player.getName()+ " :/") ;
                 System.out.println("As total you have guessed "+ player.getNumberOfKnownWords() +" words correctly");
                 System.out.println("The word to be guessed was : " + currentWord) ;
 
@@ -240,9 +241,9 @@ public class Game {
             }
 
             if( wordSize == 0 ){
+                player.setNumberOfKnownWords( player.getNumberOfKnownWords()+1 );
                 printPlayerStatus() ;
                 draw() ;
-                player.setNumberOfKnownWords( player.getNumberOfKnownWords()+1 );
 
                 System.out.println("You guessed the word correctly ");
                 // Case : No words left to be guessed

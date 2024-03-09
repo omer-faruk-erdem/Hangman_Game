@@ -1,6 +1,5 @@
 public class Player {
     private static final int playerHealthInit = 5 ;
-    private int score;
     private int health ;
     public String name ;
 
@@ -9,7 +8,7 @@ public class Player {
 
     public Player( String userName){
         name = userName ;
-        score = 0 ;
+        numberOfKnownWords = 0 ;
         health = playerHealthInit ;
     }
     public Boolean isDead(){
@@ -20,9 +19,6 @@ public class Player {
         return health;
     }
 
-    public int getScore(){
-        return score ;
-    }
     public String getName(){
         return name ;
     }
@@ -41,14 +37,5 @@ public class Player {
 
     public void setHealth(int health){
         this.health = health ;
-    }
-
-    public void decreaseHealth() throws Exception {
-        if( health == 0 ){
-            throw new Exception(" Player is already dead ! ") ;
-        }
-        else{
-            health--;
-        }
     }
 }
